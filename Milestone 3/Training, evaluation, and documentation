@@ -1,0 +1,35 @@
+Main objective: improve performance and prepare final presentation/report.
+
+Tasks
+
+ Training and evaluation
+
+implement training loop
+validation loop
+test loop
+compute metrics:
+accuracy
+top-5 accuracy
+confusion matrix
+per-class accuracy
+save checkpoints
+plot training/validation loss and accuracy
+analyze misclassified breeds
+help write report and results section
+
+Deliverables
+
+train.py
+evaluate.py
+utils.py
+graphs
+final model checkpoint
+README and report material
+Output of Milestone 3
+
+By the end of this milestone, the team should have:
+
+final trained model
+evaluation metrics
+error analysis
+completed report / slides / demo

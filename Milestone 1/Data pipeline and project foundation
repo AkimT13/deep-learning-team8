@@ -1,0 +1,35 @@
+Main objective: get the dataset working correctly and make the repo runnable.
+
+Tasks
+
+ Data gathering and cleaning
+
+download and inspect the dataset
+check class names and number of images per breed
+remove corrupted/broken images
+split dataset into:
+train
+validation
+test
+create preprocessing pipeline
+apply image resizing and normalization
+handle class imbalance if needed
+
+Deliverables
+
+cleaned dataset structure
+data_loader.py
+dataset.py
+transforms.py
+class distribution summary
+sample images visualization
+baseline preprocessing pipeline
+Output of Milestone 1
+
+By the end of this milestone, the team should be able to:
+
+load data into PyTorch
+print batch shape
+print labels
+show sample images
+train loop can at least read data without crashing

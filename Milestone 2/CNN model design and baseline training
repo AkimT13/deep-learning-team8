@@ -1,0 +1,30 @@
+Main objective: build the first working model and train it.
+
+Tasks
+
+ Model architecture and research
+
+research CNN architectures suitable for image classification
+start with a simple custom CNN baseline
+define loss function and optimizer
+create model.py
+compare possible improvements:
+deeper CNN
+batch normalization
+dropout
+transfer learning later if allowed
+
+Deliverables
+
+custom CNN model in PyTorch
+training-ready forward pass
+model summary / parameter count
+first training results on validation set
+Output of Milestone 2
+
+By the end of this milestone, the team should be able to:
+
+run training
+compute loss
+compute validation accuracy
+save the trained model
