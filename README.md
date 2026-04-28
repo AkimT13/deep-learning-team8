@@ -76,3 +76,10 @@ dog-breed-classification/
 ├── README.md
 ├── requirements.txt
 └── .gitignore
+
+```
+
+run this for setup
+```
+python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+```
