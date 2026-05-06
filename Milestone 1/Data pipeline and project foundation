@@ -1,35 +1,81 @@
-Main objective: get the dataset working correctly and make the repo runnable.
+Milestone 1: Data Pipeline and Project Foundation
 
-Tasks
+Main objective
+Build a reliable and reusable data pipeline so the dog breed classification project is runnable end-to-end before model training.
 
- Data gathering and cleaning
+Project structural design (how we organized the system)
+We used a modular structure so each part of the pipeline has one clear responsibility:
 
-download and inspect the dataset
-check class names and number of images per breed
-remove corrupted/broken images
-split dataset into:
-train
-validation
-test
-create preprocessing pipeline
-apply image resizing and normalization
-handle class imbalance if needed
+1) Data splitting and folder setup
+- File: src/scripts/download_and_split.py
+- Role: takes raw breed folders from Images/ and creates data/train, data/val, and data/test.
+- Design reason: guarantees a standard dataset layout for every team member and every experiment.
 
-Deliverables
+2) Dataset abstraction
+- File: src/dataset.py
+- Role: defines StanfordDogsDataset to read image paths, map breed folders to label indices, and load images as RGB tensors.
+- Includes image validation using PIL verify() to skip corrupted/unreadable files.
+- Design reason: keeps dataset logic centralized and robust.
 
-cleaned dataset structure
-data_loader.py
-dataset.py
-transforms.py
-class distribution summary
-sample images visualization
-baseline preprocessing pipeline
+3) Preprocessing and augmentation
+- File: src/transforms.py
+- Role: defines split-specific transforms:
+  - train: resize, random crop, horizontal flip, color jitter, rotation, normalize
+  - val/test: deterministic resize + center crop + normalize
+- Uses ImageNet mean/std to match pretrained CNN expectations.
+- Design reason: improves generalization while keeping evaluation consistent.
+
+4) DataLoader factory and balancing
+- File: src/data_loader.py
+- Role: builds DataLoader objects for train/val/test and supports optional WeightedRandomSampler for class imbalance.
+- Also provides class distribution summary helpers.
+- Design reason: one interface for loading data in training, evaluation, and debugging scripts.
+
+5) Pipeline verification script
+- File: src/verify_pipeline.py
+- Role: performs sanity checks before training:
+  - verifies tensor and label shapes
+  - checks label-to-class mapping
+  - prints class distribution stats
+  - saves sample image grid to outputs/
+- Design reason: catches data and preprocessing errors early, before expensive training runs.
+
+Implementation process (what was done in Milestone 1)
+- Inspected the raw dog image dataset and confirmed breed folder naming format.
+- Built deterministic train/val/test split generation with configurable ratios and seed.
+- Implemented dataset loading with corruption filtering and clean class-index mapping.
+- Implemented preprocessing pipelines aligned with transfer learning best practices.
+- Implemented DataLoader creation for all splits with optional class rebalancing.
+- Added end-to-end verification script to confirm the pipeline is stable and runnable.
+
+How this is easier for users/teammates to understand
+- Clear separation of responsibilities: split -> dataset -> transforms -> loader -> verification.
+- One command to build splits and one command to verify the full pipeline.
+- Consistent data structure across environments (local machine and Colab).
+- Friendly printed checks (shape, labels, distribution) make debugging straightforward.
+
+Work completed by me for Milestone 1
+- Designed and implemented the dataset pipeline architecture (dataset, transforms, loaders).
+- Implemented split creation script to standardize train/val/test preparation.
+- Added corruption handling and label mapping so training does not fail on bad files.
+- Added class distribution reporting and optional sampling strategy for imbalance handling.
+- Built verify_pipeline.py to validate batch shapes, labels, and sample visualization.
+- Ensured the project is runnable end-to-end so later milestones can focus on model training and evaluation.
+
+Deliverables completed
+- cleaned dataset structure under data/train, data/val, data/test
+- src/dataset.py
+- src/data_loader.py
+- src/transforms.py
+- src/scripts/download_and_split.py
+- src/verify_pipeline.py
+- class distribution summary output
+- sample batch visualization output
+
 Output of Milestone 1
-
-By the end of this milestone, the team should be able to:
-
-load data into PyTorch
-print batch shape
-print labels
-show sample images
-train loop can at least read data without crashing
+By the end of Milestone 1, the team can:
+- load data into PyTorch DataLoaders
+- print and verify batch shapes
+- print label indices and breed names
+- visualize sample images after preprocessing
+- run a training script that reads batches without crashing

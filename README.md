@@ -1,85 +1,151 @@
-# Dog Breed Classification using CNN
+# Dog Breed Classification with Pretrained ResNet-18
 
-## Project Overview
-This project focuses on image classification using a Convolutional Neural Network (CNN) to identify dog breeds from images. Our dataset contains 150 dog breeds, and the goal is to train a deep learning model that can distinguish between visually similar breeds.
+## What This Project Does
 
-Examples of challenging breed pairs include:
-- Siberian Husky vs. Alaskan Malamute
-- French Bulldog vs. Pug
+This project classifies dog breed images using PyTorch. The data pipeline loads dog images from breed folders, applies ImageNet-style preprocessing, and trains a pretrained CNN.
 
-The project is implemented using **PyTorch**.
+Important: the files `dataset.py`, `data_loader.py`, `transforms.py`, and `verify_pipeline.py` are not the pretrained model. They are the data pipeline. The pretrained model is created in `src/model.py` by loading ResNet-18 from `torchvision`.
 
----
+## Why Use a Pretrained Model?
 
-## Objectives
-- Build a CNN-based image classification model
-- Classify dog images into one of 150 breed categories
-- Evaluate performance using validation and test datasets
-- Analyze challenges such as similar-looking breeds and class imbalance
+Training a CNN from scratch needs a lot of data and time. A pretrained ResNet-18 already learned useful visual features from ImageNet, such as edges, textures, fur patterns, ears, snouts, and body shapes. We replace its final classification layer so it predicts our dog breed classes instead.
 
----
-
-## Future Extensions
-If time allows, we may extend the project to:
-- Detect whether a dog is present in an image
-- Predict multiple breeds in the same image
-- Estimate additional attributes such as age or health condition
-
----
-
-## Team Responsibilities
-
-### Member 1 — Data Gathering and Preprocessing
-- Collect and organize dataset
-- Clean and verify image data
-- Create train/validation/test splits
-- Implement preprocessing and augmentation pipeline
-
-### Member 2 — Model Architecture
-- Research CNN architectures
-- Implement the baseline CNN model in PyTorch
-- Improve architecture using regularization and deeper layers
-
-### Member 3 — Training and Evaluation
-- Implement training and validation loop
-- Evaluate model performance
-- Generate plots, metrics, and final results
-
----
+This technique is called transfer learning.
 
 ## Project Structure
 
-```bash
-dog-breed-classification/
-│
-├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── splits/
-│
-├── notebooks/
-│   └── exploration.ipynb
-│
-├── src/
-│   ├── dataset.py
-│   ├── model.py
-│   ├── train.py
-│   ├── evaluate.py
-│   ├── utils.py
-│   └── config.py
-│
-├── outputs/
-│   ├── models/
-│   ├── plots/
-│   └── logs/
-│
-├── README.md
-├── requirements.txt
-└── .gitignore
-
+```text
+deep-learning-team8/
+  Images/                  # raw breed folders, optional
+  data/
+    train/
+    val/
+    test/
+  src/
+    dataset.py
+    data_loader.py
+    transforms.py
+    verify_pipeline.py
+    model.py
+    train_pretrained.py
+    evaluate.py
+    predict.py
+    scripts/
+      download_and_split.py
+  outputs/
+    models/
+    reports/
+    plots/
 ```
 
-run this for setup
+## Run Locally
+
+From the project folder:
+
+```powershell
+cd C:\Users\rn977\OneDrive\Desktop\demo.dog\deep-learning-team8
 ```
-python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+
+Create the train/validation/test split from `Images/`:
+
+```powershell
+python src\scripts\download_and_split.py --source-dir Images --data-dir data
 ```
+
+Verify the data pipeline:
+
+```powershell
+python src\verify_pipeline.py
+```
+
+Run a small smoke test:
+
+```powershell
+python src\train_pretrained.py --data-dir data --epochs 1 --batch-size 4 --max-batches 2
+```
+
+Train the pretrained model:
+
+```powershell
+python src\train_pretrained.py --data-dir data --epochs 10 --batch-size 32 --lr 0.0001 --num-workers 2
+```
+
+Evaluate:
+
+```powershell
+python src\evaluate.py --checkpoint outputs\models\best_resnet18.pth --data-dir data --split test
+```
+
+Predict one image:
+
+```powershell
+python src\predict.py --checkpoint outputs\models\best_resnet18.pth --image data\test\n02085620-Chihuahua\n02085620_10131.jpg --top-k 5
+```
+
+## Run In Google Colab
+
+Upload this folder to Google Drive, then create a Colab notebook.
+
+Use GPU:
+
+```text
+Runtime -> Change runtime type -> T4 GPU
+```
+
+Mount Drive:
+
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
+
+Go to your project:
+
+```python
+%cd /content/drive/MyDrive/deep-learning-team8
+```
+
+Install dependencies:
+
+```python
+!pip install -q pillow matplotlib scikit-learn tqdm pandas
+```
+
+If you uploaded `Images/` but not `data/`, split the dataset:
+
+```python
+!python src/scripts/download_and_split.py --source-dir Images --data-dir data
+```
+
+Verify:
+
+```python
+!python src/verify_pipeline.py
+```
+
+Train with pretrained ResNet-18:
+
+```python
+!python src/train_pretrained.py --data-dir data --epochs 10 --batch-size 32 --lr 0.0001 --num-workers 2
+```
+
+Evaluate:
+
+```python
+!python src/evaluate.py --checkpoint outputs/models/best_resnet18.pth --data-dir data --split test --batch-size 32 --num-workers 2
+```
+
+## What To Say In Your Report
+
+You can write:
+
+> We used transfer learning with a pretrained ResNet-18 CNN. ResNet-18 was first trained on ImageNet, so it already learned general image features. We replaced the final fully connected layer with a new layer matching the number of dog breeds in our dataset, then fine-tuned the model on our train split.
+
+Also mention:
+
+- `train` is used to learn model weights.
+- `val` is used to choose the best checkpoint.
+- `test` is used for final evaluation.
+- Top-1 accuracy checks the highest prediction.
+- Top-5 accuracy checks whether the correct breed appears in the five strongest predictions.
+- The confusion matrix helps identify similar-looking breed mistakes.

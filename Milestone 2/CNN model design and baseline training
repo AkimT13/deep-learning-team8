@@ -1,30 +1,82 @@
-Main objective: build the first working model and train it.
+Milestone 2: CNN Model Design and Baseline Training
 
-Tasks
+Main objective
+Build the first complete training pipeline for image classification by implementing and training a transfer-learning CNN baseline (ResNet-18), then validating performance with reproducible metrics.
 
- Model architecture and research
+Model design decision
+Although Milestone 2 originally mentioned a simple custom CNN baseline, the implemented baseline in this project uses pretrained ResNet-18 (transfer learning), which is more practical for dog breed classification with limited training data.
 
-research CNN architectures suitable for image classification
-start with a simple custom CNN baseline
-define loss function and optimizer
-create model.py
-compare possible improvements:
-deeper CNN
-batch normalization
-dropout
-transfer learning later if allowed
+Why this design was chosen:
+- pretrained CNN features improve convergence speed and baseline accuracy
+- fewer training iterations are needed than training from scratch
+- architecture is standard and easy to explain, evaluate, and extend
 
-Deliverables
+Implementation structure (what was built)
+1) Model construction
+- File: src/model.py
+- Implemented build_resnet18(num_classes, pretrained, freeze_backbone)
+- Replaced the final fully connected layer to match the number of dog breeds
+- Added count_trainable_parameters() for quick model size reporting
 
-custom CNN model in PyTorch
-training-ready forward pass
-model summary / parameter count
-first training results on validation set
+2) Training pipeline
+- File: src/train_pretrained.py
+- Built full training/validation loop with:
+  - CrossEntropyLoss with label smoothing
+  - AdamW optimizer
+  - top-1 and top-5 accuracy tracking
+  - optional max-batches smoke testing
+  - optional freeze-backbone training mode
+- Integrated pipeline loaders from Milestone 1
+- Enabled class balancing in training through WeightedRandomSampler
+
+3) Checkpointing and experiment tracking
+- File: src/train_pretrained.py
+- Saved:
+  - last checkpoint each epoch (last_resnet18.pth)
+  - best checkpoint by validation top-1 (best_resnet18.pth)
+- Logged training history to CSV and generated training curves (loss and accuracy plots)
+
+4) Evaluation module
+- File: src/evaluate.py
+- Implemented standalone checkpoint evaluation on train/val/test split
+- Generated:
+  - loss, top-1, top-5 metrics
+  - classification report (JSON)
+  - per-class accuracy CSV
+  - confusion matrix plot
+
+5) Inference module
+- File: src/predict.py
+- Implemented single-image prediction with top-k breed probabilities
+- Added readable breed-name formatting for user-facing output
+
+How this milestone is easier for users/teammates
+- End-to-end flow is clear: train -> evaluate -> predict
+- Reproducible CLI commands with configurable hyperparameters
+- Standard saved artifacts (models, reports, plots) simplify grading and comparison
+- Top-1/top-5 and confusion matrix outputs make model behavior easier to interpret
+
+Work completed by me for Milestone 2
+- Implemented the transfer-learning model setup in src/model.py
+- Implemented the complete training script in src/train_pretrained.py
+- Added validation metrics, checkpoint saving, and training history logging
+- Implemented evaluation pipeline with classification and confusion-matrix reporting
+- Implemented single-image prediction script for practical model demonstration
+- Connected Milestone 1 data pipeline to training and evaluation for full workflow execution
+
+Deliverables completed
+- src/model.py (ResNet-18 transfer learning setup)
+- src/train_pretrained.py (baseline training pipeline)
+- src/evaluate.py (evaluation + reporting)
+- src/predict.py (inference)
+- baseline training logs and plots in outputs/
+- best and last model checkpoints in outputs/models/
+
 Output of Milestone 2
-
-By the end of this milestone, the team should be able to:
-
-run training
-compute loss
-compute validation accuracy
-save the trained model
+By the end of Milestone 2, the team can:
+- run CNN training end-to-end
+- compute training and validation loss
+- compute top-1 and top-5 validation accuracy
+- save and reload trained model checkpoints
+- evaluate per-class performance and confusion matrix
+- run prediction on unseen images

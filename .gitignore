@@ -1,4 +1,11 @@
+Images/
 images/
-venv
-.venv/
 data/
+outputs/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/

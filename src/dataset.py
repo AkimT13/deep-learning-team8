@@ -34,7 +34,8 @@ class StanfordDogsDataset(Dataset):
             split:    one of 'train', 'val', 'test'
             transform: torchvision transforms to apply
         """
-        self.root = Path(root_dir) / split
+        data_root = self._resolve_data_root(root_dir)
+        self.root = data_root / split
         self.transform = transform
 
         if not self.root.exists():
@@ -78,6 +79,29 @@ class StanfordDogsDataset(Dataset):
             print(f"  Skipped {skipped} corrupted/unreadable images")
 
         return samples
+
+    @staticmethod
+    def _resolve_data_root(root_dir: str) -> Path:
+        """
+        Resolve the data root directory in a cwd-agnostic way.
+
+        If `root_dir` is relative, first try current working directory and
+        then the repository root (parent of this `src/` directory).
+        """
+        candidate = Path(root_dir)
+        if candidate.is_absolute():
+            return candidate
+
+        cwd_candidate = Path.cwd() / candidate
+        if cwd_candidate.exists():
+            return cwd_candidate
+
+        repo_root_candidate = Path(__file__).resolve().parent.parent / candidate
+        if repo_root_candidate.exists():
+            return repo_root_candidate
+
+        # Keep original behavior for error messaging if no candidate exists.
+        return cwd_candidate
 
     def __len__(self):
         return len(self.samples)

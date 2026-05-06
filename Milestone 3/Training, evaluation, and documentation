@@ -1,35 +1,72 @@
-Main objective: improve performance and prepare final presentation/report.
+Milestone 3: Training, Evaluation, and Documentation
 
-Tasks
+Main objective
+Finalize the end-to-end dog breed classification system by running full training experiments, performing detailed evaluation, and preparing clear documentation/report materials for final presentation and demo.
 
- Training and evaluation
+What was implemented in this project for Milestone 3
+Milestone 3 focused on completing and validating the full model lifecycle:
 
-implement training loop
-validation loop
-test loop
-compute metrics:
-accuracy
-top-5 accuracy
-confusion matrix
-per-class accuracy
-save checkpoints
-plot training/validation loss and accuracy
-analyze misclassified breeds
-help write report and results section
+1) Final training execution
+- File: src/train_pretrained.py
+- Ran multi-epoch training with pretrained ResNet-18 and transfer learning setup.
+- Tracked train and validation performance every epoch.
+- Used regularization choices (label smoothing + weight decay) and class-balanced sampling in training.
+- Saved both last and best checkpoints for reproducibility and model selection.
 
-Deliverables
+2) Final model evaluation
+- File: src/evaluate.py
+- Evaluated saved checkpoints on selected split (train/val/test, especially test for final result).
+- Computed key metrics:
+  - loss
+  - top-1 accuracy
+  - top-5 accuracy
+- Generated detailed artifacts for analysis:
+  - per-class accuracy CSV
+  - full classification report (JSON)
+  - confusion matrix figure
 
-train.py
-evaluate.py
-utils.py
-graphs
-final model checkpoint
-README and report material
+3) Inference/demo preparation
+- File: src/predict.py
+- Verified real inference flow on unseen single images.
+- Reported top-k predicted breeds with probabilities for demo-ready output.
+
+4) Documentation and reproducibility
+- File: README.md
+- Documented complete run sequence:
+  - split data
+  - verify pipeline
+  - train
+  - evaluate
+  - predict
+- Added local and Colab usage instructions for easier team collaboration and grading.
+
+Structural design impact in Milestone 3
+Because Milestones 1 and 2 were modular, Milestone 3 became straightforward:
+- data pipeline modules handled loading/preprocessing consistently
+- training script handled optimization/checkpointing/history
+- evaluation script handled metrics and analysis outputs
+- inference script handled demonstration use case
+
+This modular design reduced debugging time and made final report preparation easier.
+
+Work completed by me for Milestone 3
+- Executed and finalized the training/evaluation workflow using the implemented ResNet-18 pipeline.
+- Produced evaluation outputs needed for final analysis (top-1/top-5, per-class metrics, confusion matrix).
+- Verified checkpoint-based inference for demo scenarios.
+- Organized and clarified README/report content so others can reproduce results step-by-step.
+- Helped convert technical outputs into presentation/report-ready explanations.
+
+Deliverables completed
+- src/train_pretrained.py (final training workflow)
+- src/evaluate.py (final evaluation and error analysis artifacts)
+- src/predict.py (final inference demo flow)
+- model checkpoints in outputs/models/ (best + last after training runs)
+- analysis artifacts in outputs/reports/ and outputs/plots/ after running scripts
+- finalized README/report material for project handoff and presentation
+
 Output of Milestone 3
-
-By the end of this milestone, the team should have:
-
-final trained model
-evaluation metrics
-error analysis
-completed report / slides / demo
+By the end of Milestone 3, the team has:
+- a final trained model checkpoint
+- final evaluation metrics (including top-1 and top-5 accuracy)
+- class-level error analysis (per-class report + confusion matrix)
+- complete documentation for reproduction, presentation, and demo
