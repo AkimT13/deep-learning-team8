@@ -135,9 +135,7 @@ Evaluate:
 !python src/evaluate.py --checkpoint outputs/models/best_resnet18.pth --data-dir data --split test --batch-size 32 --num-workers 2
 ```
 
-## What To Say In Your Report
-
-You can write:
+##  Report
 
 > We used transfer learning with a pretrained ResNet-18 CNN. ResNet-18 was first trained on ImageNet, so it already learned general image features. We replaced the final fully connected layer with a new layer matching the number of dog breeds in our dataset, then fine-tuned the model on our train split.
 
@@ -149,3 +147,6 @@ Also mention:
 - Top-1 accuracy checks the highest prediction.
 - Top-5 accuracy checks whether the correct breed appears in the five strongest predictions.
 - The confusion matrix helps identify similar-looking breed mistakes.
+
+- ##run this for setup
+python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
