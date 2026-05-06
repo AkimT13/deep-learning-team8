@@ -148,5 +148,5 @@ Also mention:
 - Top-5 accuracy checks whether the correct breed appears in the five strongest predictions.
 - The confusion matrix helps identify similar-looking breed mistakes.
 
-- ##run this for setup
+ ## run this for setup
 python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
