@@ -133,7 +133,11 @@ def save_history(history, output_dir):
 
 def main():
     args = parse_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(
+    "cuda" if torch.cuda.is_available()
+    else "mps" if torch.backends.mps.is_available()
+    else "cpu"
+    )
     print(f"Device: {device}")
 
     loaders = get_all_loaders(

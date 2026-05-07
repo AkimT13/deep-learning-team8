@@ -3,12 +3,12 @@ evaluate.py
 -----------
 Evaluate the trained ResNet-18 dog breed model.
 """
-
 import argparse
 import csv
 import json
 import os
 import sys
+from collections import Counter
 from pathlib import Path
 
 import matplotlib
@@ -48,13 +48,71 @@ def topk_correct(logits, labels, k):
     return pred.eq(labels.view(-1, 1)).any(dim=1).sum().item()
 
 
+def save_misclassification_report(y_true, y_pred, class_names, reports_dir):
+    """For each breed, show what it got confused with most often."""
+    display_names = [pretty_name(n) for n in class_names]
+    rows = []
+
+    for true_idx in range(len(class_names)):
+        # find all samples where true label is this breed
+        indices = [i for i, t in enumerate(y_true) if t == true_idx]
+        if not indices:
+            continue
+
+        # count what they got predicted as
+        wrong = [y_pred[i] for i in indices if y_pred[i] != true_idx]
+        total = len(indices)
+        correct = total - len(wrong)
+
+        if not wrong:
+            continue
+
+        # find the top 3 most common wrong predictions
+        most_common_wrong = Counter(wrong).most_common(3)
+
+        for pred_idx, count in most_common_wrong:
+            rows.append({
+                "true_breed": display_names[true_idx],
+                "confused_with": display_names[pred_idx],
+                "times_confused": count,
+                "true_total": total,
+                "true_correct": correct,
+                "true_accuracy": f"{100.0 * correct / total:.1f}%",
+            })
+
+    # sort by most confused
+    rows.sort(key=lambda x: x["times_confused"], reverse=True)
+
+    path = reports_dir / "misclassifications.csv"
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+
+    # print the top 10 most common confusions to terminal
+    print("\nTop 10 most common misclassifications:")
+    print(f"  {'True Breed':<35} {'Confused With':<35} {'Count'}")
+    print("  " + "-" * 80)
+    for row in rows[:10]:
+        print(f"  {row['true_breed']:<35} {row['confused_with']:<35} {row['times_confused']}")
+
+    print(f"\nFull misclassification report saved to: {path}")
+
+
 def main():
     args = parse_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(
+        "cuda" if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available()
+        else "cpu"
+    )
+    print(f"Device: {device}")
+
     try:
         checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=False)
     except TypeError:
         checkpoint = torch.load(args.checkpoint, map_location=device)
+
     class_names = checkpoint["class_names"]
 
     model = build_resnet18(num_classes=len(class_names), pretrained=False)
@@ -144,6 +202,9 @@ def main():
     plt.tight_layout()
     plt.savefig(plots_dir / f"{args.split}_confusion_matrix.png", dpi=150)
     plt.close()
+
+    # misclassification report
+    save_misclassification_report(y_true, y_pred, class_names, reports_dir)
 
     print(f"\n{args.split} loss: {metrics['loss']:.4f}")
     print(f"{args.split} top-1 accuracy: {metrics['top1_accuracy']:.2f}%")
